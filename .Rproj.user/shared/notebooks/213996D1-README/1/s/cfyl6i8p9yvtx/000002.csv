@@ -1,0 +1,7 @@
+"0","library(readr)"
+"0","library(dplyr)"
+"0","library(ggplot2)"
+"0","mt_samples <- read_csv(""https://raw.githubusercontent.com/USCbiostats/data-science-data/master/00_mtsamples/mtsamples.csv"")"
+"0","mt_samples <- mt_samples %>%"
+"0","  select(description, medical_specialty, transcription)"
+"0","head(mt_samples)"

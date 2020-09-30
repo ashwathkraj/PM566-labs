@@ -1,0 +1,11 @@
+"0","mt_samples %>%
+  unnest_tokens(word, input = transcription) %>%
+  anti_join(stop_words) %>%
+  filter(!(word %in% as.character(seq(0,100)))) %>%
+  count(word, sort=TRUE) %>%
+  top_n(20, n) %>%
+  ggplot(aes(x = n, y = fct_reorder(word,n))) + 
+  geom_col()
+"
+"2","Joining, by = ""word""
+"

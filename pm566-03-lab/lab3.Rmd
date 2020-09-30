@@ -1,0 +1,102 @@
+---
+title: "lab3"
+author: "Ashwath Raj"
+date: "September 2, 2020"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+library(tidyverse)
+library(R.utils)
+library(leaflet)
+library(readr)
+library(lubridate)
+```
+
+```{r}
+download.file("https://raw.githubusercontent.com/USCbiostats/data-science-data/master/02_met/met_all.gz",
+              "met_all.gz", method="libcurl", timeout = 60)
+met <- data.table::fread("met_all.gz")
+
+```
+
+```{r}
+#2
+dim(met)
+head(met)
+tail(met)
+```
+
+
+```{r}
+#3
+str(met)
+```
+
+###4
+- It looks like the elevation variable has observations with 9999.0, which is probably an indicator for missing. We should take a deeper look at the data dictionary to confirm. The wind speed variable is ok but there are a lot of missing data.
+
+- After checking the data we should make the appropriate modifications. Replace elevations with 9999 as NA.
+
+- At what elevation is the highest weather station?
+  The highest elevation is 4113 meters
+
+- We also have the issue of the minimum temperature being -40C, so we should remove those observations.
+
+- We again notice that there is a -17.2C temperature reading that seems suspicious.
+
+```{r}
+summary(met[,8:13])
+# dim(met[is.na(temp)])[1]/dim(met)[1]
+met[met$elev==9999.0] <- NA
+summary(met$elev)
+
+met2 <- met[temp> -15]
+summary(met$temp)
+met2 <- met[order(temp)]
+head(met2)
+```
+
+  
+###5 (see above for change to temp > -15)
+ - I used these value to identify unusual temps and their lat,longs
+```{r}
+# met[temp < -15]
+head(met2)
+```
+
+###6 Summary Stats
+  - It appears that temp is most closely correlated to the hour
+```{r}
+elev <- met[elev == max(elev)]
+
+cor(elev$temp, elev$wind.sp, use = "pairwise.complete.obs")
+cor(elev$temp, elev$hour, use = "pairwise.complete.obs")
+cor(elev$temp, elev$day, use = "pairwise.complete.obs")
+```
+
+###7 Exploratory Graphs
+  - temp vs. date has regular cycles, but temp and wind speed seems more erratic with switching positive and negative trends across 5+ day cycles.
+```{r}
+hist(met$elev)
+hist(met$temp)
+hist(met$wind.sp)
+
+
+elev$date <- with(elev, ymd_h(paste(year,month,day,hour,sep=' ')))
+summary(elev$date)
+
+leaflet(elev) %>%
+  addProviderTiles('Esri.WorldImagery') %>%
+  addCircles(lat =~ lat, lng=~lon, opacity =1, fillOpacity =1, radius = 100)
+```
+
+```{r}
+plot(elev$date, elev$temp, type = 'l')
+plot(elev$date, elev$wind.sp, type = 'l')
+```
+
+
