@@ -3,8 +3,22 @@ title: "Lab 07 - Web scraping and Regular Expressions"
 output: html_document
 ---
 
+```{r}
+knitr::opts_chunk$set(include  = FALSE)
+install.packages("httr")
+install.packages("xml2")
+install.packages("stringr")
+install.packages("rvest")
+```
+
+
 ```{r setup}
 knitr::opts_chunk$set(include  = TRUE)
+library("httr")
+library("xml2")
+library("stringr")
+library("rvest")
+
 ```
 
 
@@ -34,16 +48,16 @@ Complete the lines of code:
 
 ```{r counter-pubmed, eval=FALSE}
 # Downloading the website
-website <- xml2::read_html("[URL]")
+website <- xml2::read_html("https://pubmed.ncbi.nlm.nih.gov/?term=sars-cov-2")
 
 # Finding the counts
-counts <- xml2::xml_find_first(website, "[XPath]")
+counts <- xml2::xml_find_first(website, "/html/body/main/div[9]/div[2]/div[2]/div[1]/span")
 
 # Turning it into text
 counts <- as.character(counts)
 
 # Extracting the data using regex
-stringr::str_extract(counts, "[REGEX FOR NUMBERS WITH COMMAS/DOTS]")
+stringr::str_extract(counts, "[0-9,]+")
 ```
 
 Don't forget to commit your work!
@@ -67,8 +81,10 @@ Use the function `httr::GET()` to make the following query:
 ```{r papers-covid-hawaii, eval=FALSE}
 library(httr)
 query_ids <- GET(
-  url   = "BASELINE URL",
-  query = list("QUERY PARAMETERS")
+  url   = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi",
+  query = list(db= 'pubmed',
+                term= 'covid19 hawaii',
+                  retmax= '1000')
 )
 
 # Extracting the content of the response of GET
@@ -92,12 +108,17 @@ following lines of code:
 ```{r get-ids, eval = FALSE}
 # Turn the result into a character vector
 ids <- as.character(ids)
+cat(ids)
 
 # Find all the ids 
-ids <- stringr::str_extract_all(ids, "PATTERN")[[1]]
+ids <- stringr::str_extract_all(ids, "<Id>[0-9,]+</Id>")[[1]]
 
 # Remove all the leading and trailing <Id> </Id>. Make use of "|"
-ids <- stringr::str_remove_all(ids, "PATTERN")
+#ids <- stringr::str_remove_all(ids, "[^0-9]")
+#ids <- stringr::str_remove_all(ids, "[</Id>]")
+ids <- stringr::str_remove_all(ids, "<Id>|</Id>")
+
+
 ```
 
 With the ids in hand, we can now try to get the abstracts of the papers. As
@@ -114,10 +135,15 @@ before, we will need to coerce the contents (results) to a list using:
 **Pro-tip**: If you want `GET()` to take some element literal, wrap it around `I()` (as you would do in a formula in R). For example, the text `"123,456"` is replaced with `"123%2C456"`. If you don't want that behavior, you would need to do the following `I("123,456")`.
     
 ```{r get-abstracts, eval = FALSE}
+ids <- paste(ids, collapse=",")
+
 publications <- GET(
-  url   = "BASELINE URL HERE",
+  url   = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi",
   query = list(
-    "PARAMETERS OF THE QUERY"
+    db = "pubmed",
+    id = ids,
+    retmax = 1000,
+    rettype = "abstract"
     )
 )
 
@@ -140,7 +166,7 @@ Write a regular expression that captures all such instances
 ```{r univ-institute-regex, eval = FALSE}
 institution <- str_extract_all(
   publications_txt,
-  "[YOUR REGULAR EXPRESSION HERE]"
+  "University of | Institute of"
   ) 
 institution <- unlist(institution)
 table(institution)
