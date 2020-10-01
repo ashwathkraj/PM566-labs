@@ -166,10 +166,14 @@ Write a regular expression that captures all such instances
 ```{r univ-institute-regex, eval = FALSE}
 institution <- str_extract_all(
   publications_txt,
-  "University of | Institute of"
+  "University of\\s[[:alpha:]]+|[[:alpha:]]+\\sInstitute of\\s[[:alpha:]]+"
   ) 
+
 institution <- unlist(institution)
 table(institution)
+
+
+institution
 ```
 
 Repeat the exercise and this time focus on schools and departments in the form of
@@ -181,8 +185,8 @@ And tabulate the results
 
 ```{r school-department, eval = FALSE}
 schools_and_deps <- str_extract_all(
-  abstracts_txt,
-  "[YOUR REGULAR EXPRESSION HERE]"
+  publications_txt,
+  "School of\\s[[:alpha:]]+|Department of\\s[[:alpha:]]+"
   )
 table(schools_and_deps)
 ```
@@ -207,17 +211,22 @@ Now, extract the abstract and article title for each one of the elements of
 `pub_char_list`. You can either use `sapply()` as we just did, or simply
 take advantage of vectorization of `stringr::str_extract`
 
-```{r extracting-last-bit, eval = FALSE}
-abstracts <- str_extract(pub_char_list, "[YOUR REGULAR EXPRESSION]")
-abstracts <- str_remove_all(abstracts, "[CLEAN ALL THE HTML TAGS]")
-abstracts <- str_remove_all(abstracts, "[CLEAN ALL EXTRA WHITE SPACE AND NEW LINES]")
+```{r extracting-last-bit, eval = TRUE}
+pub_char_list
+
+abstracts <- str_extract(pub_char_list, "<Abstract>(\\n|.)+</Abstract>")
+abstracts <- str_remove_all(abstracts, "</?[[:alnum:]]+>")
+abstracts <- str_replace_all(abstracts, "\\s+", " ")
+table(is.na(abstracts))
 ```
 
 How many of these don't have an abstract? Now, the title
 
 ```{r process-titles, eval = FALSE}
-titles <- str_extract(pub_char_list, "[YOUR REGULAR EXPRESSION]")
-titles <- str_remove_all(titles, "[CLEAN ALL THE HTML TAGS]")
+titles <- str_extract(pub_char_list, "<ArticleTitle>(\\n|.)+</ArticleTitle>")
+titles <- str_remove_all(titles, "</?[[:alnum:]]+>")
+titles <- str_replace_all(titles, "\\s+", " ")
+titles
 ```
 
 Finally, put everything together into a single `data.frame` and use
@@ -225,7 +234,9 @@ Finally, put everything together into a single `data.frame` and use
 
 ```{r build-db, eval = FALSE}
 database <- data.frame(
-  "[DATA TO CONCATENATE]"
+  pubmed_id = ids2,
+  title = titles,
+  abstract = abstracts
 )
 knitr::kable(database)
 ```
