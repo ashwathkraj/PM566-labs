@@ -1,9 +1,0 @@
-"0","query_ids <- GET(
-  url   = ""https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"",
-  query = list(db= pubmed,
-                term= covid19 hawaii,
-"
-"2","Error: unexpected symbol in:
-""  query = list(db= pubmed,
-                term= covid19 hawaii""
-"

@@ -5,16 +5,16 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "0",
+    "hash" : "3276767595",
     "id" : "31DB5E9C",
-    "lastKnownWriteTime" : 1601510955,
-    "last_content_update" : 1601510955995,
+    "lastKnownWriteTime" : 1601512463,
+    "last_content_update" : 1601512463413,
     "path" : "~/__USC Masters/_Fall 2020/PM 566/pm566-labs/pm566-07-lab/README.Rmd",
     "project_path" : "pm566-07-lab/README.Rmd",
     "properties" : {
-        "cursorPosition" : "245,27",
+        "cursorPosition" : "4,0",
         "last_setup_crc32" : "C976EDB0cfaab1db",
-        "scrollLine" : "236"
+        "scrollLine" : "0"
     },
     "relative_order" : 1,
     "source_on_save" : false,
