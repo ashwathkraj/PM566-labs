@@ -1,7 +1,0 @@
-"0","# Extracting the data using regex
-stringr::str_extract(counts, ""[0-9,]+"")
-"
-"1","[1]"
-"1"," ""33,814"""
-"1","
-"
