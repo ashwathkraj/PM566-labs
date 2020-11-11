@@ -1,6 +1,6 @@
 ---
 title: "Lab 9 - HPC"
-output: github_document
+output: html_document
 ---
 
 # Learning goals
